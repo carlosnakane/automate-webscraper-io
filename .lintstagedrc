@@ -1,0 +1,3 @@
+{
+    "*.ts": "eslint src/**/*.ts --cache --fix"
+}

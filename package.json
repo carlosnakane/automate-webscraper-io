@@ -1,0 +1,57 @@
+{
+  "name": "node-typescript-boilerplate",
+  "version": "1.0.0",
+  "description": "A boilerplate for authoring node/typescript libraries",
+  "main": "main.js",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "node",
+    "typescript",
+    "esbuild"
+  ],
+  "repository": {
+    "url": "https://github.com/carlosnakane/node-typescript-boilerplate.git"
+  },
+  "scripts": {
+    "start": "ts-node src/main.ts",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "build:debug": "esbuild src/main.ts --bundle --sourcemap --outfile=dist/main.js",
+    "build:watch": "esbuild src/main.ts --bundle --watch --sourcemap=external --outfile=dist/main.js",
+    "prepare": "husky install",
+    "prepublish": "npm run lint && npm run build"
+  },
+  "author": "Carlos Nakane",
+  "license": "MIT",
+  "devDependencies": {
+    "@tsconfig/node12": "~1.0.9",
+    "@types/jest": "~27.0.1",
+    "@types/puppeteer": "^5.4.4",
+    "@typescript-eslint/eslint-plugin": "~4.29.1",
+    "@typescript-eslint/parser": "~4.29.1",
+    "esbuild": "~0.12.20",
+    "eslint": "~7.32.0",
+    "eslint-config-google": "~0.14.0",
+    "eslint-config-prettier": "~8.3.0",
+    "eslint-plugin-import": "~2.24.0",
+    "eslint-plugin-jest": "~24.4.0",
+    "eslint-plugin-prettier": "~3.4.0",
+    "husky": "~7.0.1",
+    "jest": "~27.0.6",
+    "lint-staged": "~11.1.2",
+    "prettier": "~2.3.2",
+    "rimraf": "~3.0.2",
+    "ts-jest": "~27.0.4",
+    "ts-node": "~10.2.0",
+    "typescript": "~4.3.5"
+  },
+  "dependencies": {
+    "puppeteer": "^10.2.0"
+  }
+}
