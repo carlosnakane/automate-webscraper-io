@@ -1,23 +1,13 @@
-import { promisify } from 'util';
-import { readFile } from 'fs';
-import { SitemapData, SelectorTypes } from './metadata';
+import { SelectorTypes, Selector } from './metadata';
 import { launch } from 'puppeteer';
 
-const promisedReadFile = promisify(readFile);
-
-const getSitemapRootSelector = (sitemapData: SitemapData) => {
-  return sitemapData.selectors.find(
+const getSitemapRootSelector = (selectors: Selector[]) => {
+  return selectors.find(
     (s) => s.parentSelectors.find((p) => p === '_root') != null
   );
 };
 
-const scrapper = async (siteMapFilePath: string) => {
-  const siteMap = JSON.parse(
-    await promisedReadFile(siteMapFilePath, 'utf-8')
-  ) as SitemapData;
-
-  const startUrl = siteMap.startUrl[0];
-
+const scrapper = async (startUrl: string, selectors: Selector[]) => {
   console.log('>', startUrl);
 
   if (startUrl == null) {
@@ -31,7 +21,7 @@ const scrapper = async (siteMapFilePath: string) => {
   try {
     await page.goto(startUrl);
 
-    const root = getSitemapRootSelector(siteMap);
+    const root = getSitemapRootSelector(selectors);
     if (root == null) {
       throw new Error('startUrl can not be null');
     }
@@ -39,9 +29,9 @@ const scrapper = async (siteMapFilePath: string) => {
     await page.waitForSelector(root.selector);
 
     extracted = await page.evaluate((sitemapSerial: string) => {
-      const sitemap = JSON.parse(sitemapSerial) as SitemapData;
+      const selectorsParam = JSON.parse(sitemapSerial) as Selector[];
 
-      const rootSelector = sitemap.selectors.find(
+      const rootSelector = selectorsParam.find(
         (s) => s.parentSelectors[0] === '_root'
       );
 
@@ -49,7 +39,7 @@ const scrapper = async (siteMapFilePath: string) => {
         throw new Error('Root Selector not found');
       }
 
-      const selectors = sitemap.selectors.filter(
+      const childSelectors = selectorsParam.filter(
         (s) => s.parentSelectors[0] !== '_root'
       );
 
@@ -57,7 +47,7 @@ const scrapper = async (siteMapFilePath: string) => {
 
       return Array.from(rootElements).map((r) => {
         const data: Record<string, string | null> = {};
-        selectors.forEach((s) => {
+        childSelectors.forEach((s) => {
           const element = r.querySelector(s.selector);
           data[s.id] = getContent(s.type, element, s.regex);
         });
@@ -104,9 +94,9 @@ const scrapper = async (siteMapFilePath: string) => {
 
         return null;
       }
-    }, JSON.stringify(siteMap));
+    }, JSON.stringify(selectors));
   } catch (error) {
-    console.log(`Error extracting ${siteMapFilePath}`);
+    console.log(`Error extracting ${startUrl}`);
   }
 
   await browser.close();

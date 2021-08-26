@@ -32,10 +32,9 @@ const jsonToCSV = async (
 
   const result = await parseAsync(data, opts);
 
-  await promisedWriteFile(
-    `${resultFolder}${fileName.replace('.json', '.csv')}`,
-    result
-  );
+  await promisedWriteFile(`${resultFolder}${fileName}.csv`, result);
+
+  console.log(`${resultFolder}${fileName}.csv`);
 };
 
 export default jsonToCSV;
